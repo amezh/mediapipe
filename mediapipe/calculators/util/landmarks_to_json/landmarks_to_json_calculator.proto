@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+package mediapipe;
+
+import "mediapipe/framework/calculator.proto";
+
+message LandmarksToJsonCalculatorOptions {
+  extend CalculatorOptions {
+    optional LandmarksToJsonCalculatorOptions ext = 335671549;
+  }
+
+  // The path to the output JSON file.
+  optional string output_file = 1;
+  
+  // Whether to append all frames to the output file (true) or only save the latest frame (false).
+  optional bool append_mode = 2 [default = false];
+}

@@ -1851,3 +1851,19 @@ cc_test(
         "@com_google_absl//absl/status",
     ],
 )
+
+cc_library(
+    name = "landmarks_to_json_calculator",
+    srcs = ["landmarks_to_json_calculator.cc"],
+    deps = [
+        "//mediapipe/framework:calculator_framework",
+        "//mediapipe/framework/formats:landmark_cc_proto",
+        "//mediapipe/framework/formats:detection_cc_proto",
+        "//mediapipe/framework/port:ret_check",
+        "//mediapipe/framework/port:status",
+        "//mediapipe/framework/deps:json_to_proto",
+        "//mediapipe/framework/port:map_util",
+        "@com_google_absl//absl/strings",
+    ],
+    alwayslink = 1,
+)
