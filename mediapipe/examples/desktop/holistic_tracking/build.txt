@@ -1,3 +1,5 @@
-bazel build -c opt   --define=XNNPACK_ENABLE_AVXVNNIINT8=0   --define xnn_enable_avxvnniint8=false   --define xnn_enable_avx512amx=false   --define xnn_enable_avxvnni=false   --define xnn_enable_avx512fp16=false   --copt=-I/usr/local/include/opencv4   //mediapipe/examples/desktop/holistic_tracking:holistic_tracking_gpu
+BUILD:
+bazel build -c opt   --define=XNNPACK_ENABLE_AVXVNNIINT8=0   --define xnn_enable_avxvnniint8=false   --define xnn_enable_avx512amx=false   --define xnn_enable_avxvnni=false   --define xnn_enable_avx512fp16=false   --copt=-I/usr/local/include/opencv4  //mediapipe/examples/desktop/holistic_tracking:holistic_tracking_gpu
 
-bazel-bin/mediapipe/examples/desktop/holistic_tracking/holistic_tracking_gpu --calculator_graph_config_file=./mediapipe/graphs/holistic_tracking/holistic_tracking_gpu.pbtxt --input_video_path=input.mp4 --output_video_path=output.mp4
+RUN:
+DRI_PRIME=1 bazel-bin/mediapipe/examples/desktop/holistic_tracking/holistic_tracking_gpu --calculator_graph_config_file=./mediapipe/graphs/holistic_tracking/holistic_tracking_gpu.pbtxt --input_video_path=process/input.mp4 --output_video_path=process/output.mp4

@@ -13,7 +13,6 @@
 #include "absl/strings/str_join.h"
 #include "mediapipe/framework/port/map_util.h"
 #include "mediapipe/framework/port/file_helpers.h"
-#include "msgpackpp/msgpackpp.h"
 
 namespace mediapipe {
 
@@ -78,7 +77,7 @@ absl::Status LandmarksToJsonCalculator::GetContract(CalculatorContract* cc) {
 
 absl::Status LandmarksToJsonCalculator::Open(CalculatorContext* cc) {
   // For simplicity, hardcode options
-  output_file_ = "landmarks_output.json";
+  output_file_ = "process/json/landmarks_output.json";
   append_mode_ = true;
   
   // If not appending, clear the file content
@@ -110,11 +109,11 @@ absl::Status LandmarksToJsonCalculator::Process(CalculatorContext* cc) {
   std::string json = "{";
   
   // Add frame timestamp
-  absl::StrAppend(&json, "\"timestamp_us\":", cc->InputTimestamp().Microseconds());
+  // absl::StrAppend(&json, "\"timestamp_us\":", cc->InputTimestamp().Microseconds());
   
-  // Add image dimensions
-  absl::StrAppend(&json, ",\"image_width\":", image_size.first, 
-                 ",\"image_height\":", image_size.second);
+  // // Add image dimensions
+  // absl::StrAppend(&json, ",\"image_width\":", image_size.first, 
+  //                ",\"image_height\":", image_size.second);
   
   // Process pose landmarks
   if (!cc->Inputs().Tag("POSE_LANDMARKS").IsEmpty()) {
@@ -155,7 +154,7 @@ absl::Status LandmarksToJsonCalculator::Process(CalculatorContext* cc) {
   absl::StrAppend(&json, "}");
   
   // Output to stream
-  cc->Outputs().Tag("LANDMARKS_JSON").Add(new std::string(json), cc->InputTimestamp());
+  cc->Outputs().Tag("LANDMARKS_JSON").Add(new std::string(""), cc->InputTimestamp());
   
   // Handle file output if configured
   if (!output_file_.empty()) {
