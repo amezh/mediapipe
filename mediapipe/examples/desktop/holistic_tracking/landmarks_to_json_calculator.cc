@@ -2,6 +2,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "mediapipe/framework/calculator_framework.h"
 #include "mediapipe/framework/formats/landmark.pb.h"
@@ -12,6 +13,7 @@
 #include "absl/strings/str_join.h"
 #include "mediapipe/framework/port/map_util.h"
 #include "mediapipe/framework/port/file_helpers.h"
+#include "msgpackpp/msgpackpp.h"
 
 namespace mediapipe {
 
@@ -186,14 +188,23 @@ std::string LandmarksToJsonCalculator::ConvertLandmarksToJson(
   std::vector<std::string> landmark_strings;
   
   for (int i = 0; i < landmarks.landmark_size(); ++i) {
-    const auto& landmark = landmarks.landmark(i);
-    std::string landmark_json = absl::StrCat(
+    const auto& landmark = landmarks.landmark(i);    std::string landmark_json = absl::StrCat(
         "{\"x\":", landmark.x(),
         ",\"y\":", landmark.y(),
-        ",\"z\":", landmark.z(),
-        ",\"visibility\":", landmark.has_visibility() ? absl::StrCat(landmark.visibility()) : "null",
-        ",\"presence\":", landmark.has_presence() ? absl::StrCat(landmark.presence()) : "null",
-        "}");
+        ",\"z\":", landmark.z());
+        
+    // Add visibility only if available
+    if (landmark.has_visibility()) {
+      absl::StrAppend(&landmark_json, ",\"visibility\":", landmark.visibility());
+    }
+    
+    // Add presence only if available
+    if (landmark.has_presence()) {
+      absl::StrAppend(&landmark_json, ",\"presence\":", landmark.presence());
+    }
+    
+    // Close the JSON object
+    absl::StrAppend(&landmark_json, "}");
     landmark_strings.push_back(landmark_json);
   }
   
@@ -205,7 +216,8 @@ absl::Status LandmarksToJsonCalculator::WriteJsonToFile(const std::string& json)
     return absl::OkStatus();
   }
   
-  std::ofstream output_file(output_file_, std::ios::out | std::ios::trunc);
+  // For MessagePack, we need to write binary data
+  std::ofstream output_file(output_file_, std::ios::out | std::ios::binary | std::ios::trunc);
   if (!output_file.is_open()) {
     return absl::InvalidArgumentError(
         absl::StrCat("Could not open output file: ", output_file_));
