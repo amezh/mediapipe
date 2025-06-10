@@ -51,8 +51,8 @@ absl::Status RunMPPGraph() {
   MP_RETURN_IF_ERROR(mediapipe::file::GetContents(
       absl::GetFlag(FLAGS_calculator_graph_config_file),
       &calculator_graph_config_contents));
-  ABSL_LOG(INFO) << "Get calculator graph config contents: "
-                 << calculator_graph_config_contents;
+  // ABSL_LOG(INFO) << "Get calculator graph config contents: "
+  //                << calculator_graph_config_contents;
   mediapipe::CalculatorGraphConfig config =
       mediapipe::ParseTextProtoOrDie<mediapipe::CalculatorGraphConfig>(
           calculator_graph_config_contents);
@@ -88,10 +88,20 @@ absl::Status RunMPPGraph() {
 #endif
   }
 
-  ABSL_LOG(INFO) << "Start running the calculator graph.";
+  ABSL_LOG(INFO) << "Start running the calculator graph. With refine_face_landmarks.";
+                 
+
+  std::map<std::string, mediapipe::Packet> input_side_packets;
+  input_side_packets["refine_face_landmarks"] = mediapipe::MakePacket<bool>(true);
+  input_side_packets["REFINE_LANDMARKS:refine_face_landmarks"] = mediapipe::MakePacket<bool>(true);
+  input_side_packets["REFINE_LANDMARKS"] = mediapipe::MakePacket<bool>(true);
+  input_side_packets["WITH_ATTENTION:with_attention"] = mediapipe::MakePacket<bool>(true);
+  input_side_packets["with_attention"] = mediapipe::MakePacket<bool>(true);
+
+
   MP_ASSIGN_OR_RETURN(mediapipe::OutputStreamPoller poller,
                       graph.AddOutputStreamPoller(kOutputStream));
-  MP_RETURN_IF_ERROR(graph.StartRun({}));
+  MP_RETURN_IF_ERROR(graph.StartRun(input_side_packets));
 
   ABSL_LOG(INFO) << "Start grabbing and processing frames.";
   bool grab_frames = true;

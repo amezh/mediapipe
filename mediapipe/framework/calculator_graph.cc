@@ -762,7 +762,9 @@ absl::Status CalculatorGraph::PrepareForRun(
       VLOG(1) << "Adding extra_side_packet with name: " << item.first;
     }
   }
-
+    for (const auto& item : extra_side_packets) {
+         ABSL_LOG(INFO) << "Adding extra_side_packet with name: " << item.first;
+     }
   {
     absl::MutexLock lock(&error_mutex_);
     errors_.clear();

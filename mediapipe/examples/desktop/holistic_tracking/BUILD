@@ -32,7 +32,7 @@ cc_binary(
         "//mediapipe/modules/hand_landmark:hand_landmark_full.tflite",
         "//mediapipe/modules/holistic_landmark:hand_recrop.tflite",
         "//mediapipe/modules/pose_detection:pose_detection.tflite",
-        "//mediapipe/modules/pose_landmark:pose_landmark_full.tflite",
+        "//mediapipe/modules/pose_landmark:pose_landmark_heavy.tflite",
     ],
     deps = [
         "//mediapipe/examples/desktop:demo_run_graph_main",
@@ -49,7 +49,7 @@ cc_binary(
         "//mediapipe/modules/hand_landmark:hand_landmark_full.tflite",
         "//mediapipe/modules/holistic_landmark:hand_recrop.tflite",
         "//mediapipe/modules/pose_detection:pose_detection.tflite",
-        "//mediapipe/modules/pose_landmark:pose_landmark_full.tflite",
+        "//mediapipe/modules/pose_landmark:pose_landmark_heavy.tflite",
     ],
     deps = [
         "//mediapipe/examples/desktop:demo_run_graph_main_gpu",

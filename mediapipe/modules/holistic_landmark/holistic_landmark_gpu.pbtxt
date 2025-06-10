@@ -74,7 +74,7 @@ input_side_packet: "SMOOTH_SEGMENTATION:smooth_segmentation"
 # Whether to run the face landmark model with attention on lips and eyes to
 # provide more accuracy, and additionally output iris landmarks. If unspecified,
 # functions as set to false. (bool)
-input_side_packet: "REFINE_FACE_LANDMARKS:refine_face_landmarks"
+input_side_packet: "refine_face_landmarks"
 
 # Whether landmarks on the previous image should be used to help localize
 # landmarks on the current image. (bool)

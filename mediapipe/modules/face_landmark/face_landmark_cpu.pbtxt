@@ -165,7 +165,7 @@ node {
   options: {
     [mediapipe.SwitchContainerOptions.ext] {
       contained_node: {
-        calculator: "TensorsToFaceLandmarks"
+        calculator: "TensorsToFaceLandmarksWithAttention"
       }
       contained_node: {
         calculator: "TensorsToFaceLandmarksWithAttention"
