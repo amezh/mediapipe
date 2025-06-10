@@ -6,3 +6,4 @@ node_modules/
 .configure.bazelrc
 .user.bazelrc
 *.mp4
+process/json/landmarks_output.json
