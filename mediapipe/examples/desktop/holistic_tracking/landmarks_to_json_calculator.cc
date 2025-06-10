@@ -120,7 +120,7 @@ absl::Status LandmarksToJsonCalculator::Process(CalculatorContext* cc) {
     const auto& landmarks = cc->Inputs().Tag("POSE_LANDMARKS").Get<NormalizedLandmarkList>();
     if (!landmarks.landmark().empty()) {
       std::string landmarks_json = ConvertLandmarksToJson(landmarks);
-      absl::StrAppend(&json, ",\"pose_landmarks\":", landmarks_json);
+      absl::StrAppend(&json, "\"pose_landmarks\":", landmarks_json);
     }
   }
   
@@ -154,7 +154,7 @@ absl::Status LandmarksToJsonCalculator::Process(CalculatorContext* cc) {
   absl::StrAppend(&json, "}");
   
   // Output to stream
-  cc->Outputs().Tag("LANDMARKS_JSON").Add(new std::string(""), cc->InputTimestamp());
+  cc->Outputs().Tag("LANDMARKS_JSON").Add(new std::string(json), cc->InputTimestamp());
   
   // Handle file output if configured
   if (!output_file_.empty()) {

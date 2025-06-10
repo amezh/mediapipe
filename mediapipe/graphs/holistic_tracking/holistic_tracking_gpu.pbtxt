@@ -40,6 +40,26 @@ node {
 }
 
 node {
+  calculator: "ConstantSidePacketCalculator"
+  output_side_packet: "PACKET:model_complexity"
+  node_options: {
+    [type.googleapis.com/mediapipe.ConstantSidePacketCalculatorOptions] {
+      packet { int_value: 2 }  # Set model complexity to 2 (highest accuracy)
+    }
+  }
+}
+
+node {
+  calculator: "ConstantSidePacketCalculator"
+  output_side_packet: "PACKET:refine_face_landmarks"
+  node_options: {
+    [type.googleapis.com/mediapipe.ConstantSidePacketCalculatorOptions] {
+      packet { bool_value: true }  # Enable refined face landmarks (with iris tracking)
+    }
+  }
+}
+
+node {
   calculator: "HolisticLandmarkGpu"
   input_stream: "IMAGE:throttled_input_video"
   output_stream: "POSE_LANDMARKS:pose_landmarks"

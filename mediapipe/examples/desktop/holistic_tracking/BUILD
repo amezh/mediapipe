@@ -26,6 +26,7 @@ package(default_visibility = ["//mediapipe/examples:__subpackages__"])
 #   --output_video_path=<output video path>
 cc_binary(
     name = "holistic_tracking_cpu",
+     includes    = ["."],
     data = [
         "//mediapipe/modules/face_landmark:face_landmark.tflite",
         "//mediapipe/modules/hand_landmark:hand_landmark_full.tflite",

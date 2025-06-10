@@ -842,3 +842,21 @@ http_archive(
     strip_prefix = "skia-226ae9d866748a2e68b6dbf114b37129c380a298/include/config",
     urls = ["https://github.com/google/skia/archive/226ae9d866748a2e68b6dbf114b37129c380a298.zip"],
 )
+# Override problematic zlib dependency
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "zlib",
+    build_file_content = """
+cc_library(
+    name = "zlib",
+    srcs = [],
+    hdrs = [],
+    linkopts = ["-lz"],
+    visibility = ["//visibility:public"],
+)
+""",
+    sha256 = "72af66d44fcc14c22013b46b814d5d2514673dda3d115e64b690c1ad636e7b17",
+    strip_prefix = "zlib-1.2.13",
+    urls = ["https://github.com/madler/zlib/archive/v1.2.13.tar.gz"],
+)
