@@ -1,0 +1,1 @@
+ bazel-bin/mediapipe/examples/desktop/holistic_tracking/holistic_tracking_gpu --calculator_graph_config_file=./mediapipe/graphs/holistic_tracking/holistic_tracking_gpu.pbtxt --input_video_path=/mnt/d/VideoAIs/mp/setOne42s_vis.mp4 --output_video_path=output.mp4
