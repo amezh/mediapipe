@@ -18,7 +18,7 @@ Camera → G9 mapping (person roughly faces camera):
 Depth sign: MP Z used as directional hint (not magnitude).
 
 Face: proven relative-metric approach from v4/v5.
-Run in Blender — paste Part 1 then Part 2.
+Run in Blender Text Editor.
 """
 
 import bpy, json, math, os
@@ -149,7 +149,7 @@ MP_BONE_SEGMENTS = {
 
 
 def calibrate_bone_lengths(frames):
-    """Scan all frames. Max observed 2D length ≈ true 3D length."""
+    """Scan all frames. Max observed 2D length = true 3D length."""
     nf = len(frames)
     bl = {}
     for seg, (i1, i2) in MP_BONE_SEGMENTS.items():
@@ -178,7 +178,7 @@ class BodyDriver:
       2. Fixed camera→G9 mapping: G9 = (cam_dx, -cam_dz, -cam_dy)
       3. inv(matrix_local) to convert world→bone-local
       4. rotation_difference((0,1,0), local_dir) → quaternion
-    
+
     Parent bones (spine, hip, pelvis) are NOT rotated.
     This means pose_bone.rotation_quaternion IS effectively world-space,
     eliminating the double-rotation bug.
@@ -267,7 +267,7 @@ class BodyDriver:
 
             # Scale and apply
             s = BODY_SENS.get(bn, 1.0) * MASTER_SCALE
-            scaled = Quaternion().slerp(quat, clamp(s, 0, 2))
+            scaled = Quaternion().slerp(quat, clamp(s, 0, 1))
 
             pb = self.pb[bn]
             if pb.rotation_mode == 'QUATERNION':
@@ -641,17 +641,49 @@ def main():
     bpy.context.scene.frame_current = START_FRAME
     bpy.context.scene.render.fps = SOURCE_FPS
 
-    fa = arm.animation_data.action
-    if fa:
-        try:
-            for fc in fa.fcurves:
+    # Apply Bezier interpolation to all F-curves
+    print("\n  Applying Bezier interpolation...")
+    try:
+        fcurves = None
+        act = arm.animation_data.action if arm.animation_data else None
+        if act:
+            # Try direct access first
+            try:
+                test = act.fcurves[0]
+                fcurves = act.fcurves
+            except (AttributeError, IndexError, TypeError):
+                pass
+
+            # Try building list manually
+            if fcurves is None:
+                try:
+                    fcurves = [fc for fc in act.fcurves]
+                except:
+                    pass
+
+            # Try via groups
+            if fcurves is None:
+                try:
+                    fcurves = []
+                    for g in act.groups:
+                        for ch in g.channels:
+                            fcurves.append(ch)
+                except:
+                    pass
+
+        if fcurves:
+            count = 0
+            for fc in fcurves:
                 for kp in fc.keyframe_points:
                     kp.interpolation = 'BEZIER'
                     kp.handle_left_type = 'AUTO_CLAMPED'
                     kp.handle_right_type = 'AUTO_CLAMPED'
-            print(f"\n  Bezier on {len(fa.fcurves)} F-curves")
-        except Exception as e:
-            print(f"\n  Interpolation: {e}")
+                count += 1
+            print(f"  Bezier on {count} F-curves")
+        else:
+            print("  Warning: Could not access F-curves (animation still works, just linear interpolation)")
+    except Exception as e:
+        print(f"  Bezier warning: {e} (animation still works)")
 
     bpy.context.view_layer.update()
 
@@ -659,9 +691,8 @@ def main():
     print("DONE!")
     print(f"  Frames: {START_FRAME}–{START_FRAME + nf - 1} @ {SOURCE_FPS}fps")
     print(f"  Method: bone-length depth + direct cam→G9 + rotation_difference")
-    print(f"  Body: 12 limb bones (no spine rotation — eliminates double-rotation bug)")
-    print(f"  Face: {len(fi_face)} frames, L-hand: {len(fi_lh)}, R-hand: {len(fi_rh)}")
-    print(f"  Spine/torso animation: to be added after limb verification")
+    print(f"  Body: 12 limb bones, Face: {len(fi_face)} frames")
+    print(f"  L-hand: {len(fi_lh)}, R-hand: {len(fi_rh)}")
     print(f"{'=' * 70}")
 
 
