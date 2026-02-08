@@ -35,7 +35,7 @@ ARKIT_TO_G9 = {
     "eyeSquintRight":     ["facs_bs_EyeSquintRight"],
     "eyeWideLeft":        ["facs_bs_EyelidOpenUpperLeft", "facs_bs_EyelidOpenLowerLeft"],
     "eyeWideRight":       ["facs_bs_EyelidOpenUpperRight", "facs_bs_EyelidOpenLowerRight"],
-    "jawForward":         ["facs_bs_JawRecess"],
+    "jawForward":         ["facs_bs_JawForward"],
     "jawLeft":            ["facs_bs_JawLeft"],
     "jawOpen":            ["facs_bs_JawOpen"],
     "jawRight":           ["facs_bs_JawRight"],
@@ -79,8 +79,8 @@ def main():
 
     # ── Detect property style: try (fin) first, then plain facs_ ──
     all_props = set(obj.keys())
-    fin_props = {k for k in all_props if '(fin)' in k and 'facs_' in k}
-    facs_props = {k for k in all_props if 'facs_' in k and '(fin)' not in k}
+    fin_props = {k for k in all_props if ' (fin)' in k and 'facs_' in k}
+    facs_props = {k for k in all_props if 'facs_' in k and ' (fin)' not in k}
 
     if fin_props:
         use_fin = True
@@ -95,7 +95,7 @@ def main():
     arkit_to_prop = {}
     for arkit_name, g9_list in ARKIT_TO_G9.items():
         for g9_name in g9_list:
-            prop_name = g9_name + '(fin)' if use_fin else g9_name
+            prop_name = g9_name + ' (fin)' if use_fin else g9_name
             if prop_name in all_props:
                 arkit_to_prop.setdefault(arkit_name, []).append(prop_name)
 
