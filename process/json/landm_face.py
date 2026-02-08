@@ -554,7 +554,8 @@ def build_header():
     return cols
 
 
-def process_video(video_path, model_path, csv_path, bs_path, mesh_video_path=None):
+def process_video(video_path, model_path, csv_path, bs_path,
+                  mesh_video_path=None):
     if not os.path.isfile(video_path):
         print(f"ERROR: Video not found: {video_path}")
         sys.exit(1)
@@ -697,7 +698,8 @@ def main():
     parser.add_argument("--mesh_video", default=DEFAULT_MESH_VIDEO, help="Output video with face mesh overlay (default: <input>_mesh.<ext>)")
     args = parser.parse_args()
 
-    process_video(args.video, args.model, args.output, args.blendshapes, args.mesh_video)
+    process_video(args.video, args.model, args.output, args.blendshapes,
+                  args.mesh_video)
 
 
 if __name__ == "__main__":

@@ -127,6 +127,17 @@ def main():
                 fcs.remove(fc)
             print(f"[FACS] Cleared {len(to_del)} old fcurves")
 
+    # ── Pre-process: reduce mouthClose when mouthRoll is active ──
+    # Both morph the lips inward; stacking them causes lip geometry to clip.
+    for fi in range(n_total):
+        d = data[fi]
+        if d is None:
+            continue
+        roll = max(d.get("mouthRollLower", 0), d.get("mouthRollUpper", 0))
+        if roll > 0.1 and "mouthClose" in d:
+            # Scale down mouthClose proportionally to how much roll is active
+            d["mouthClose"] = d["mouthClose"] * max(0.0, 1.0 - roll)
+
     # ── Keyframe ──
     kf_count = 0
     for fi in range(n_total):
