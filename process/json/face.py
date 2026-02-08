@@ -8,7 +8,7 @@ Keyframes custom properties on the selected object.
 import bpy
 import json
 
-JSON_PATH = "D://VideoAIs//mp//process//json////blendshapes_output.json"
+JSON_PATH = "D:/VideoAIs/mp/process/json/blendshapes_output.json"
 START_FRAME = 1
 GLOBAL_INTENSITY = 1.0
 
@@ -67,6 +67,7 @@ ARKIT_TO_G9 = {
     "mouthUpperUpRight":  ["facs_bs_MouthUpperUpRight"],
     "noseSneerLeft":      ["facs_bs_NoseSneerLeft"],
     "noseSneerRight":     ["facs_bs_NoseSneerRight"],
+    "tongueOut":          ["facs_bs_TongueOut"],
 }
 
 def main():

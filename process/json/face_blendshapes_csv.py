@@ -110,7 +110,7 @@ def main():
         output = session.run(None, {input_name: pts})[0]
 
         bs = {}
-        for k in range(1, min(52, len(BLENDSHAPE_NAMES))):
+        for k in range(1, min(53, len(BLENDSHAPE_NAMES))):
             val = round(float(output[k]), 6)
             name = BLENDSHAPE_NAMES[k]
             bs[name] = val
