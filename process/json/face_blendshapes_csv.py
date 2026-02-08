@@ -8,6 +8,8 @@ import os
 CSV_PATH = os.path.join(os.path.dirname(__file__), "mediapipe_face_3d_xyz.csv")
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "..", "model", "face_blendshapes.onnx")
 OUTPUT_JSON = os.path.join(os.path.dirname(__file__), "blendshapes_output.json")
+IMAGE_WIDTH = 720
+IMAGE_HEIGHT = 1280
 
 # 146 landmark indices (subset of 478)
 SUBSET_IDXS = [
@@ -59,6 +61,13 @@ def main():
     session = ort.InferenceSession(MODEL_PATH)
     input_name = session.get_inputs()[0].name
 
+    # Track min/max per blendshape
+    bs_min = {}
+    bs_max = {}
+    for name in BLENDSHAPE_NAMES[1:]:
+        bs_min[name] = float('inf')
+        bs_max[name] = float('-inf')
+
     results = []
     for i, row in enumerate(rows):
         # Check if row has valid data (not all zeros)
@@ -66,17 +75,49 @@ def main():
             results.append(None)
             continue
 
-        # Extract 146 subset, use x and y only (already at scale)
+        # Extract all 478 landmarks: x, -z (FreeMoCap: y=0, z=inverted vertical)
+        # Fix iris landmarks 468-477 which are always zero in FreeMoCap data:
+        # estimate from surrounding eye landmarks
+        lm_x = [row[idx * 3] for idx in range(478)]
+        lm_y = [-row[idx * 3 + 2] for idx in range(478)]
+
+        # Left iris (468-472): estimate from left eye corners (33, 133)
+        left_cx = (lm_x[33] + lm_x[133]) / 2
+        left_cy = (lm_y[33] + lm_y[133]) / 2
+        left_rx = abs(lm_x[33] - lm_x[133]) * 0.15  # iris radius ~15% of eye width
+        lm_x[468], lm_y[468] = left_cx, left_cy
+        lm_x[469], lm_y[469] = left_cx + left_rx, left_cy
+        lm_x[470], lm_y[470] = left_cx, left_cy - left_rx
+        lm_x[471], lm_y[471] = left_cx - left_rx, left_cy
+        lm_x[472], lm_y[472] = left_cx, left_cy + left_rx
+
+        # Right iris (473-477): estimate from right eye corners (263, 362)
+        right_cx = (lm_x[263] + lm_x[362]) / 2
+        right_cy = (lm_y[263] + lm_y[362]) / 2
+        right_rx = abs(lm_x[263] - lm_x[362]) * 0.15
+        lm_x[473], lm_y[473] = right_cx, right_cy
+        lm_x[474], lm_y[474] = right_cx - right_rx, right_cy
+        lm_x[475], lm_y[475] = right_cx, right_cy - right_rx
+        lm_x[476], lm_y[476] = right_cx + right_rx, right_cy
+        lm_x[477], lm_y[477] = right_cx, right_cy + right_rx
+
+        # Extract 146 subset
         pts = np.zeros((1, 146, 2), dtype=np.float32)
         for j, idx in enumerate(SUBSET_IDXS):
-            pts[0, j, 0] = row[idx * 3]      # x
-            pts[0, j, 1] = row[idx * 3 + 1]  # y
+            pts[0, j, 0] = lm_x[idx]
+            pts[0, j, 1] = lm_y[idx]
 
         output = session.run(None, {input_name: pts})[0]
 
         bs = {}
-        for k in range(1, 53):
-            bs[BLENDSHAPE_NAMES[k]] = round(float(output[k]), 6)
+        for k in range(1, min(52, len(BLENDSHAPE_NAMES))):
+            val = round(float(output[k]), 6)
+            name = BLENDSHAPE_NAMES[k]
+            bs[name] = val
+            if val < bs_min[name]:
+                bs_min[name] = val
+            if val > bs_max[name]:
+                bs_max[name] = val
         results.append(bs)
 
         if i % 100 == 0:
@@ -88,6 +129,14 @@ def main():
 
     valid = sum(1 for r in results if r is not None)
     print(f"Done. {valid} frames with blendshapes, {len(results) - valid} skipped.")
+
+    # Print min/max summary
+    print(f"\n{'Blendshape':<25} {'Min':>10} {'Max':>10}")
+    print("-" * 47)
+    for name in BLENDSHAPE_NAMES[1:]:
+        if bs_min[name] == float('inf'):
+            continue
+        print(f"{name:<25} {bs_min[name]:>10.6f} {bs_max[name]:>10.6f}")
 
 if __name__ == "__main__":
     main()

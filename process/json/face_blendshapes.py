@@ -6,7 +6,7 @@ import os
 # --- Config ---
 IMAGE_WIDTH = 1920
 IMAGE_HEIGHT = 1080
-LANDMARKS_JSON = os.path.join(os.path.dirname(__file__), "landmarks_output_.json")
+LANDMARKS_JSON = os.path.join(os.path.dirname(__file__), "landmarks_output.json")
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "..", "model", "face_blendshapes.onnx")
 OUTPUT_JSON = os.path.join(os.path.dirname(__file__), "blendshapes_output.json")
 
@@ -53,6 +53,13 @@ def main():
 
     results = []
 
+    # Track min/max per blendshape
+    bs_min = {}
+    bs_max = {}
+    for name in BLENDSHAPE_NAMES[1:]:
+        bs_min[name] = float('inf')
+        bs_max[name] = float('-inf')
+
     for i, frame in enumerate(frames):
         face_lm = frame.get("face_landmarks")
         if not face_lm or len(face_lm) < 478:
@@ -70,7 +77,13 @@ def main():
         # Build dict of blendshape name -> weight, skip _neutral
         bs = {}
         for k in range(1, 52):
-            bs[BLENDSHAPE_NAMES[k]] = round(float(output[k]), 6)
+            val = round(float(output[k]), 6)
+            name = BLENDSHAPE_NAMES[k]
+            bs[name] = val
+            if val < bs_min[name]:
+                bs_min[name] = val
+            if val > bs_max[name]:
+                bs_max[name] = val
         results.append(bs)
 
         if i % 100 == 0:
@@ -83,6 +96,14 @@ def main():
     # Stats
     valid = sum(1 for r in results if r is not None)
     print(f"Done. {valid} frames with blendshapes, {len(results) - valid} frames skipped (no face).")
+
+    # Print min/max summary
+    print(f"\n{'Blendshape':<25} {'Min':>10} {'Max':>10}")
+    print("-" * 47)
+    for name in BLENDSHAPE_NAMES[1:]:
+        if bs_min[name] == float('inf'):
+            continue
+        print(f"{name:<25} {bs_min[name]:>10.6f} {bs_max[name]:>10.6f}")
 
 if __name__ == "__main__":
     main()
