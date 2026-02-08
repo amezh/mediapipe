@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(d:VideoAIsmpprocess.condapython.exe -c \"import onnxruntime; print\\(''found''\\)\")",
+      "Bash(C:\\\\Python312\\\\python.exe -m pip install:*)",
+      "Bash(cmd /c:*)"
+    ]
+  }
+}
